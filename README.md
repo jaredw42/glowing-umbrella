@@ -5,4 +5,4 @@
 
 ### todo:
 
-- [] finish gtt rf on/off script
+- [ ] finish gtt rf on/off script
