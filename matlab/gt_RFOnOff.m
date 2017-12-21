@@ -84,6 +84,7 @@ end
 for i = 1:length(GTT)
     GTT(i).navstats = calc_cdf_nav(GTT(i).nav);
     GTT(i).rfonoffstats = calc_cdf_rfonoff(GTT(i).rfonoff);
+    GTT(i).fixstats = calc_fixstats(GTT(i).navstats);
 end
 
 %end
