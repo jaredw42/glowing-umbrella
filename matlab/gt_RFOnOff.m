@@ -25,18 +25,18 @@ set(0,'defaultAxesGridAlpha', 0.5)
 set(0,'defaultAxesFontSize', 16)
 
 nLines = nDevices ;
-prompt = {'Folder 1', 'Folder 2', 'Folder 3', 'Folder 4'};
+prompt = {'Folder 1', 'Folder 2', 'Folder 3', 'Folder 4', 'Folder 5', 'Folder 6'};
         
 dlg_title = 'Test folder names (Leave blank if needed)'
-defaultans = {'', '', '', ''}
+defaultans = {'', '', '', '', '', ''}
 options.Resize = 'on'
-dut_foldernames = inputdlg(prompt, dlg_title, [nLines,100], defaultans, options)
+dut_foldernames = inputdlg(prompt, dlg_title, [1,100], defaultans, options)
 
 if nDevices == 2;
     dut_foldernames(3:end, :) = []
 end
 
-%
+%%
 
 prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
             'Date stamp', 'Outage Duration', 'Legend Names'}
@@ -45,10 +45,11 @@ prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
 
 dlg_title = 'Input output plot file info'
 
-defaultans = {'/Users/jwilson/SwiftNav/Piksi_1_3_testing/plots/',...
-               'GTT_RfOnOff_', '_SBL' '_1213', '40-50 s', 'GTT11- v1.3.6'};
+defaultans = {'/Users/jwilson/SwiftNav/Piksi_1_3_testing/plots/v139/',...
+               'GTT_RfOnOff_', 'SBL_' '1214A', '40-50 s',...
+               'GTT11 - v1.3.9, GTT12 - v1.2.13'}%, GTT13 - v1.3.7, GTT14v- v1.2.14, GTT21 - PR1517, GTT 22 - PR1518' };
  
-dut_info = inputdlg(prompt, dlg_title, [6, 100], defaultans)
+dut_info = inputdlg(prompt, dlg_title, [1, 100], defaultans, options)
 outPath = dut_info{1}
 outName = dut_info{2}
 outCorrType = dut_info{3}
@@ -58,23 +59,24 @@ rfOffTime = dut_info{5}
 
 
 legNames = strsplit(dut_info{6}, ',')
-end
+
 
 %% load in rfonoff and nav csv files into tables
 
 
 tic
-for i = 1: length(dut_foldernames);
+for i = 1: nDevices;
     
-    GTT(i).filepath = dut_foldernames{i}
+    GTT(i).filepath = dut_foldernames{i};
 
     if strcmp(GTT(i).filepath(end), '/') == false
-        GTT(i).filepath = strcat(GTT(i).filepath, '/')
+        GTT(i).filepath = strcat(GTT(i).filepath, '/');
     end
     
     
-    GTT(i).rfonoff = readtable(strcat(GTT(i).filepath, 'rf-on-off.csv'));
+    GTT(i).trk = readtable(strcat(GTT(i).filepath, 'trk.csv'));
     GTT(i).nav = readtable(strcat(GTT(i).filepath, 'nav.csv'));
+    GTT(i).rfonoff = readtable(strcat(GTT(i).filepath, 'rf-on-off.csv'));
     toc
 end
  %% CDF calc function calls
@@ -85,7 +87,7 @@ for i = 1:length(GTT)
 end
 
 %end
-
+end
 %% title info
 
 tStr = {'GTT RF On/Off Test',  ['RF Off Duration:',rfOffTime],  ['Dataset: ' dStamp]}
@@ -107,7 +109,7 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Time to SPS (s)')
 ylabel('Percent of Cycles');
 tStr{4} = 'Time to SPS Fixed';
@@ -129,14 +131,14 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Time to RTK Float (s)')
 ylabel('Percent of Cycles');
 
 tStr{4} = 'Time to RTK Float';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTFloat')
+pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTFloat');
 print(gcf, '-dpng', pngFull);
 
 %% figure 3 cdf ttfixed
@@ -156,14 +158,14 @@ grid on
         'LineWidth', 2)
  end
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Time to RTK Fixed (s)')
 ylabel('Percent of Cycles');
 
 tStr{4} = 'Time to RTK Fixed';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'TTFixed')
+pngFull = strcat(outPath, outName, outCorrType, dStamp, 'TTFixed');
 print(gcf, '-dpng', pngFull);
 
 
@@ -184,16 +186,16 @@ end
 
 ax = gca;
 ax.Color = [0.3 0.3 0.3];
-%ylim([0 20])
+ylim([0 0.5])
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error- RTK Fixed');
 
 tStr{4} = 'Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFixed')
+pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFixed');
 print(gcf, '-dpng', pngFull);
 
 %% figure 5 max rtkfloat by cycle
@@ -212,14 +214,14 @@ ax = gca;
 ax.Color = [0.3 0.3 0.3];
 ylim([0 20])
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error');
 
 tStr{4} = 'Max Horiz Error by Cycle (RTK Float)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFloat')
+pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFloat');
 print(gcf, '-dpng', pngFull);
 
 
@@ -240,7 +242,7 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error');
 
@@ -249,7 +251,7 @@ xlim([0 20])
 tStr{4} = 'CDF Max Horiz Error by Cycle (SPS)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_SPS')
+pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_SPS');
 print(gcf, '-dpng', pngFull);
 
 %% figure 7 cdf max rtk Fixed 
@@ -268,15 +270,15 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-%xlim([0 .2])
-legend(legNames)
+xlim([0 .2])
+legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 
 tStr{4} = 'CDF Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed')
+pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed');
 print(gcf, '-dpng', pngFull);
 
 %% figure 8 cdf max rtk fixed zoomed
@@ -294,8 +296,8 @@ for i = 1:length(GTT)
 end
 
 
-%xlim([0 .05])
-legend(legNames)
+xlim([0 .05])
+legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 ax = gca;
@@ -324,7 +326,7 @@ end
 
 
 xlim([0 10])
-legend(legNames)
+legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 

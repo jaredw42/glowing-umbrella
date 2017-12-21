@@ -4,7 +4,8 @@ function navstats = calc_cdf_nav(nav)
 disp('Nav CDF Calc Start')
 tic
 
-truthPos = [37.77345208 , -122.41787236 , -6.3070]
+%truthPos = [37.77345208 , -122.41787236 , -6.3070] % antenna 4
+truthPos = [37.773484953, -122.417716503, -5.606] % antenna 2
 refElips = referenceEllipsoid('grs80')
 falseFixthreshold = 0.25
 
@@ -159,25 +160,7 @@ navstats.plotdata.allRTK_err3D = cdf3dallrtk;
 toc
 
 
+
 %%
-% 
-% 
-% for i = 1:length(LJ)
-%     
-%     nav = LJ(i).nav;
-%     
-%     vi = nav.nav.FixMode == 4;
-%     
-%     fixednav.err3D = nav.nav.err3D(vi);
-%     
-%     x = sort(fixednav.err3D);
-%     a = length(fixednav.err3D) - find(x > falseFixthreshold, 1);
-%     
-%     LJ(i).fix.falsefix = a;
-%     LJ(i).fix.totalRTK = length(fixednav.err3D);
-%     LJ(i).fix.falsepct = (a / length(fixednav.err3D)) * 100;
-%     
-% end
-% 
-% 
+
 
