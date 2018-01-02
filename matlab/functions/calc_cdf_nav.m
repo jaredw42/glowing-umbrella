@@ -1,11 +1,12 @@
-function navstats = calc_cdf_nav(nav)
+function [nav, navstats] = calc_cdf_nav(nav)
 %% GTT RFOn/Off CDF calculator/plotter
 
 disp('Nav CDF Calc Start')
 tic
 
 %truthPos = [37.77345208 , -122.41787236 , -6.3070] % antenna 4
-truthPos = [37.773484953, -122.417716503, -5.606] % antenna 2
+%truthPos = [37.773484953, -122.417716503, -5.606] % antenna 2
+truthPos = [37.77347341 , -122.41771647 , -5.7070] % thermal chamber
 refElips = referenceEllipsoid('grs80')
 falseFixthreshold = 0.25
 
@@ -157,10 +158,13 @@ navstats.allRTK_err3D = [cdf3dallrtk(sig1); cdf3dallrtk(sig2); cdf3dallrtk(sig3)
 navstats.plotdata.allRTK_errHoriz = cdfallrtk;
 navstats.plotdata.allRTK_err3D = cdf3dallrtk;
 
+%nav = nav;
 toc
 
 
 
 %%
+
+
 
 
