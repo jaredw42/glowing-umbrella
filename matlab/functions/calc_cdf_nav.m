@@ -1,14 +1,17 @@
-function [nav, navstats] = calc_cdf_nav(nav)
+function [nav, navstats] = calc_cdf_nav(nav, truthPos)
 %% GTT RFOn/Off CDF calculator/plotter
 
 disp('Nav CDF Calc Start')
 tic
 
+
+%% get truth position
+
 %truthPos = [37.77345208 , -122.41787236 , -6.3070] % antenna 4
 %truthPos = [37.773484953, -122.417716503, -5.606] % antenna 2
-truthPos = [37.77347341 , -122.41771647 , -5.7070] % thermal chamber
+%truthPos = [37.77347341 , -122.41771647 , -5.7070] % thermal chamber
 refElips = referenceEllipsoid('grs80')
-falseFixthreshold = 0.25
+
 
 [nav.errN, nav.errE, nav.errD] = geodetic2ned(nav.Lat_deg_,nav.Lon_deg_,nav.AltEllips_m_,...
     truthPos(1), truthPos(2), truthPos(3), refElips);
@@ -99,7 +102,7 @@ navstats.plotdata.DGNSS_err3D = cdf3DDGNSS;
 vi = nav.FixMode == 1;
 
 cdfsps = sort(abs(nav.errHoriz(vi)));
-cdf3dsps = sort(abs(nav.errHoriz(vi)));
+cdf3dsps = sort(abs(nav.err3D(vi)));
 
 n = length(cdfsps);
 
@@ -158,7 +161,7 @@ navstats.allRTK_err3D = [cdf3dallrtk(sig1); cdf3dallrtk(sig2); cdf3dallrtk(sig3)
 navstats.plotdata.allRTK_errHoriz = cdfallrtk;
 navstats.plotdata.allRTK_err3D = cdf3dallrtk;
 
-%nav = nav;
+
 toc
 
 
