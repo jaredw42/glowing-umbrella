@@ -1,4 +1,4 @@
-%% GTT RF On/Off Plotter
+git%% GTT RF On/Off Plotter
 % Jared Wilson
 % Swift Navigation
 
@@ -17,7 +17,7 @@ if strcmp(ckClear, 'Yes') == true
 
 %% user input folder info and load nav and rf on/off data
 x = (inputdlg('Enter number of devices'))
-nDevices = str2num(x{:});
+nDevices = str2double(x{:});
 
 
 %% plot details
@@ -32,8 +32,8 @@ defaultans = {'', '', '', '', '', ''}
 options.Resize = 'on'
 dut_foldernames = inputdlg(prompt, dlg_title, [1,100], defaultans, options)
 
-if nDevices == 2;
-    dut_foldernames(3:end, :) = []
+if nDevices == 2
+    dut_foldernames(3:end, :) = [];
 end
 
 %%
@@ -87,7 +87,7 @@ for i = 1:length(GTT)
     GTT(i).fixstats = calc_fixstats(GTT(i).navstats);
 end
 
-%end
+
 end
 %% title info
 
