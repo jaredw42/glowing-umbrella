@@ -11,6 +11,8 @@
 - [x] add logic for different antenna positions
 - [ ] date stamp from receiver data
 - [ ] legend data from rx data
+- [ ] define convention for naming files and folders
+- [ ] write stats data to spreadsheet
   
 - getReceiverData
   - [ ] add exception handling for datasets without report.txt file
