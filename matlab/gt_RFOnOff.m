@@ -1,4 +1,4 @@
-git%% GTT RF On/Off Plotter
+%% GTT RF On/Off Plotter
 % Jared Wilson
 % Swift Navigation
 
@@ -46,8 +46,8 @@ prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
 dlg_title = 'Input output plot file info'
 
 defaultans = {'/Users/jwilson/SwiftNav/Piksi_1_3_testing/plots/v139/',...
-               'GTT_RfOnOff_', 'SBL_' '1214A', '40-50 s',...
-               'GTT11 - v1.3.9, GTT12 - v1.2.13'}%, GTT13 - v1.3.7, GTT14v- v1.2.14, GTT21 - PR1517, GTT 22 - PR1518' };
+               'GTT_RfOnOff_', 'SBL_' '180108', '15-35 s',...
+               'GTT11 - v1.3.10,GTT12 - v1.2.13, GTT13 - v1.3.10 GTT14- v1.3.10'}%, GTT21 - PR1517, GTT 22 - PR1518' };
  
 dut_info = inputdlg(prompt, dlg_title, [1, 100], defaultans, options)
 outPath = dut_info{1}
@@ -73,7 +73,7 @@ for i = 1: nDevices;
         GTT(i).filepath = strcat(GTT(i).filepath, '/');
     end
     
-    
+    GTT(i).rxdata = getReceiverData(GTT(i).filepath);
     GTT(i).trk = readtable(strcat(GTT(i).filepath, 'trk.csv'));
     GTT(i).nav = readtable(strcat(GTT(i).filepath, 'nav.csv'));
     GTT(i).rfonoff = readtable(strcat(GTT(i).filepath, 'rf-on-off.csv'));
@@ -82,7 +82,7 @@ end
  %% CDF calc function calls
 
 for i = 1:length(GTT)
-    GTT(i).navstats = calc_cdf_nav(GTT(i).nav);
+   [GTT(i).nav, GTT(i).navstats] = calc_cdf_nav(GTT(i).nav, GTT(i).rxdata.truthPos);
     GTT(i).rfonoffstats = calc_cdf_rfonoff(GTT(i).rfonoff);
     GTT(i).fixstats = calc_fixstats(GTT(i).navstats);
 end
@@ -238,22 +238,26 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoffstats.plotdata.Max2DSPSErr,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr),...
-        'LineWidth', 2)
+%     plot(GTT(i).rfonoffstats.plotdata.Max2DSPSErr,...
+%         100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr),...
+%         'LineWidth', 2)
+    
+    plot(GTT(i).rfonoff.SPS2DError_m_)
 end
+
+
 
 legend(legNames, 'Location', 'southeast')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error');
 
-xlim([0 20])
+%xlim([0 20])
 
 tStr{4} = 'CDF Max Horiz Error by Cycle (SPS)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_SPS');
-print(gcf, '-dpng', pngFull);
+%print(gcf, '-dpng', pngFull);
 
 %% figure 7 cdf max rtk Fixed 
 
@@ -336,4 +340,21 @@ title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFloat');
 print(gcf, '-dpng', pngFull);
+
+%% figure 10 ttfloat vs rfofftime
+figure (10)
+
+hold on
+grid on
+set(gcf, 'Position', figPos)
+
+for i = 1:length(GTT)
+    scatter(GTT(i).rfonoff.RFOffTime_s_, GTT(i).rfonoff.TTFloat_s_)
+end
+xlabel('RF Off Time (s)')
+ylabel('Time to RTK Float (s)')
+tStr{4} = 'Time to RTK Float vs RF Off Time'
+
+title(tStr)
+legend(legNames)
 toc

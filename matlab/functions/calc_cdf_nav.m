@@ -112,8 +112,8 @@ navstats.count.SPS = n;
 [~, sig2] = min(abs((1:n)/n-0.95));
 [~, sig3] = min(abs((1:n)/n-0.9975));
 
-navstats.SPS_horiz = [cdfsps(sig1); cdfsps(sig2); cdfsps(sig3)];
-navstats.SPS_3D = [cdf3dsps(sig1); cdf3dsps(sig2); cdf3dsps(sig3)];
+navstats.SPS_horiz = [cdfsps(sig1); cdfsps(sig2); cdfsps(sig3); n];
+navstats.SPS_3D = [cdf3dsps(sig1); cdf3dsps(sig2); cdf3dsps(sig3); n];
 
 navstats.plotdata.SPS_errHoriz = cdfsps;
 navstats.plotdata.SPS_err3D = cdf3dsps;

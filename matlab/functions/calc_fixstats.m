@@ -18,5 +18,22 @@ fixstats.goodPct = 100 - fixstats.badPct;
 
 
 
+%% calc fix percentages
+
+n = navstats.count;
+nepochs = n.allEpochs;
+
+fixstats.pctrfixed = n.RTKfixed / nepochs * 100;
+fixstats.pctrfloat = n.RTKfloat / nepochs* 100;
+fixstats.pctdgps = n.DGNSS / nepochs * 100;
+fixstats.pctsps = n.SPS / nepochs * 100; 
+
+nfixes = n.RTKfixed + n.RTKfloat + n.DGNSS + n.SPS;
+
+fixstats.pctfix = nfixes / nepochs * 100;
+fixstats.missfix = nepochs - nfixes; 
+
+
+
 end
 
