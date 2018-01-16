@@ -1,4 +1,4 @@
-function [rfonoffstats] = calc_cdf_rfonoff(rfonoff)
+function [rfonoffstats] = calc_cdf_rfonoff(rfonoff, testType)
 %% GTT RFOn/Off CDF calculator/plotter
 
 disp('RF On/Off CDF Calc Start')
@@ -20,7 +20,13 @@ tic
     rfonoffstats.TTSPS = [ttfixcdf(sig1); ttfixcdf(sig2); ttfixcdf(sig3)];
     rfonoffstats.Max2DSPSStats = [max2derrcdf(sig1); max2derrcdf(sig2); max2derrcdf(sig3)];
     rfonoffstats.Max3DSPSStats = [max3derrcdf(sig1); max3derrcdf(sig2); max3derrcdf(sig3)];
-
+    
+    try testType == 'ST'
+        ttboot = sort(rfonoff.TTBoot_s_);
+        rfonoffstats.plotdata.TTBoot = ttboot;
+        rfonoffstats.TTBoot = [ttboot(sig1); ttboot(sig2); ttboot(sig3);]
+    end
+    
 %% calc time to fix RTK CDFs 
 
 

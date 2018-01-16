@@ -4,63 +4,28 @@
 
 %reads data from Continous Navigation testing from GTT stand and plots
 
-ckClear = questdlg('Do you wish to clear the workspace and close all plots?');
 
-if strcmp(ckClear, 'Yes') == true
-    
-    close all
-    clearvars -except figPos 
+close all
+global figPos   
 
-    GTT = struct();
+[dut_foldernames, dut_info] = gt_userinput();
 
+nDevices = length(dut_foldernames)
 
-
-%% user input folder info and load nav and rf on/off data
-x = (inputdlg('Enter number of devices'))
-nDevices = str2double(x{:});
-
-
-%% plot details
-set(0,'defaultAxesGridAlpha', 0.5)
-set(0,'defaultAxesFontSize', 16)
-
-nLines = nDevices ;
-prompt = {'Folder 1', 'Folder 2', 'Folder 3', 'Folder 4', 'Folder 5', 'Folder 6'};
-        
-dlg_title = 'Test folder names (Leave blank if needed)'
-defaultans = {'', '', '', '', '', ''}
-options.Resize = 'on'
-dut_foldernames = inputdlg(prompt, dlg_title, [1,100], defaultans, options)
-
-if nDevices < 6
-    for i = 1:length(dut_foldernames)
-        if isempty(dut_foldernames{i}) == true  
-            dut_foldernames(i:end, :) = [];
-            break
-        end
-    end
-end
-
-%%
-
-prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
-            'Date stamp'}
-
-dlg_title = 'Input plot info'
-
-defaultans = {'/Users/jwilson/SwiftNav/dev/plots/',...
-               'GT3CN_', 'RTCM3S_' '180109'};
- 
-dut_info = inputdlg(prompt, dlg_title, [1, 100], defaultans)
-outPath = dut_info{1}
-outName = dut_info{2}
-outCorrType = dut_info{3}
-dStamp = dut_info{4}
+outPath = dut_info{1};
+outName = dut_info{2};
+outCorrType = dut_info{3};
+dStamp = dut_info{4};
+rxOffTime = dut_info{5};
+testType = 'CN'
+%% 
 
 ts = strcat(outName,outCorrType, dStamp)
 ts = strrep(ts, '_', ' ')
 
 tStamp = ts;
+tStr = {'GTT Continous Navigation ',  ['Dataset: ' tStamp], ' ' }
+
 %% load in rfonoff and nav csv files into tables
 
 
@@ -80,8 +45,6 @@ for i = 1: length(dut_foldernames)
     toc
 end
 
-
-end
  %% CDF calc function calls
 
 for i = 1:length(GTT)
@@ -103,12 +66,11 @@ end
 
 axDark = [ 0.4 0.4 0.4] %tuple for dark axis background alpha
 tabColNames = colname
-tabPosition = [850 100 425 115]
+tabPosition = [850 100 450 115]
 tabRowNames = {'One Sig', 'Two Sig', 'Three Sig', 'Count'}
 tabFontSize = 14;
     
 %% figure 1 SVs used
-tStr = {'GTT Continous Navigation ',  ['Dataset: ' tStamp], ' ' }
 
 
 figure (1)
@@ -142,8 +104,8 @@ for i = 1:nDevices
     gtpctfix(2,i) = fs.pctrfloat;
     gtpctfix(3,i) = fs.pctdgps;
     gtpctfix(4,i) = fs.pctsps;
-    gtpctfix(5,i) = fs.pctfix;
-    gtpctfix(6,i) = fs.missfix;
+   % gtpctfix(5,i) = fs.pctfix;
+   % gtpctfix(6,i) = fs.missfix;
 end
 
 
@@ -151,7 +113,7 @@ a = uitable;
 a.RowName = {'% RTK Fixed', '% RTK Float', '% DGNSS', '%SPS', 'Total Fix %', '# of missing fixes'};
 a.ColumnName = colname;
 a.Data = gtpctfix;
-a.Position = [550, 100, 500, 150];
+a.Position = tabPosition;
 a.FontSize = tabFontSize;
 
 
@@ -168,7 +130,7 @@ end
 legend(legNames)
 xlabel('GPS TOW (s)')
 ylabel('Differential Mode');
-
+xlim([525000 604800])
 tStr{end} = 'Differential Mode';
 title(tStr)
 
@@ -252,8 +214,8 @@ end
 axis tight
 ylim([0 0.2])
 legend(legNames)
-xlabel('3D Error')
-ylabel('Percent of Epochs');
+xlabel('GPS TOW (s)')
+ylabel('3D Error (m)');
 
 tStr{end} = '3D Error (All Epochs)';
 title(tStr)

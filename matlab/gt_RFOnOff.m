@@ -3,69 +3,32 @@
 % Swift Navigation
 
 %reads data from RF On/Off testing from GTT stand and plots
+%
 
-ckClear = questdlg('Do you wish to clear the workspace and close all plots?');
-
-if strcmp(ckClear, 'Yes') == true
+close all
+global figPos   
     
-    close all
-    clearvars -except figPos legNames
+[dut_foldernames, dut_info] = gt_userinput
 
-    GTT = struct();
+    
+clearvars -except figPos dut_foldernames dut_info
+nDevices = length(dut_foldernames)
 
-
-
-%% user input folder info and load nav and rf on/off data
-x = (inputdlg('Enter number of devices'))
-nDevices = str2double(x{:});
-
-
-%% plot details
-set(0,'defaultAxesGridAlpha', 0.5)
-set(0,'defaultAxesFontSize', 16)
-
-nLines = nDevices ;
-prompt = {'Folder 1', 'Folder 2', 'Folder 3', 'Folder 4', 'Folder 5', 'Folder 6'};
-        
-dlg_title = 'Test folder names (Leave blank if needed)'
-defaultans = {'', '', '', '', '', ''}
-options.Resize = 'on'
-dut_foldernames = inputdlg(prompt, dlg_title, [1,100], defaultans, options)
-
-if nDevices == 2
-    dut_foldernames(3:end, :) = [];
-end
-
-%%
-
-prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
-            'Date stamp', 'Outage Duration', 'Legend Names'}
-
-
-
-dlg_title = 'Input output plot file info'
-
-defaultans = {'/Users/jwilson/SwiftNav/Piksi_1_3_testing/plots/v139/',...
-               'GTT_RfOnOff_', 'SBL_' '180108', '15-35 s',...
-               'GTT11 - v1.3.10,GTT12 - v1.2.13, GTT13 - v1.3.10 GTT14- v1.3.10'}%, GTT21 - PR1517, GTT 22 - PR1518' };
- 
-dut_info = inputdlg(prompt, dlg_title, [1, 100], defaultans, options)
 outPath = dut_info{1}
 outName = dut_info{2}
 outCorrType = dut_info{3}
-corrType = 'RTK Short Baseline'
 dStamp = dut_info{4}
 rfOffTime = dut_info{5}
-
-
-legNames = strsplit(dut_info{6}, ',')
-
+testType = 'RF'
 
 %% load in rfonoff and nav csv files into tables
 
 
 tic
-for i = 1: nDevices;
+
+GTT = struct();
+
+for i = 1: nDevices
     
     GTT(i).filepath = dut_foldernames{i};
 
@@ -88,17 +51,54 @@ for i = 1:length(GTT)
 end
 
 
-end
-%% title info
 
-tStr = {'GTT RF On/Off Test',  ['RF Off Duration:',rfOffTime],  ['Dataset: ' dStamp]}
+%% title info
+ts = strcat(outName,outCorrType, dStamp)
+ts = strrep(ts, '_', ' ')
+rfoff = strrep(rfOffTime, '_', ' ')
+
+
+tStamp = ts;
+tStr = {'GTT RF On/Off Test',  ['RF Off Duration:',rfoff],  ['Dataset: ' tStamp], ' '}
+
+for i = 1:nDevices
+    fs = GTT(i).fixstats;
+    gtpctfix(1,i) = fs.pctrfixed;
+    gtpctfix(2,i) = fs.pctrfloat;
+    gtpctfix(3,i) = fs.pctdgps;
+    gtpctfix(4,i) = fs.pctsps;
+    gtpctfix(5,i) = fs.pctfix;
+    gtpctfix(6,i) = fs.missfix;
+    
+    legNames{i} = strcat(GTT(i).rxdata.gtname, GTT(i).rxdata.FWRev);
+    colname{i} = GTT(i).rxdata.gtname;
+end
+
+axDark = [ 0.4 0.4 0.4] %tuple for dark axis background alpha
+tabColNames = colname;
+tabRowNames = {'One Sig', 'Two Sig', 'Three Sig', 'Count'};
+tabFontSize = 14;
+if nDevices == 4
+    tabPosition = [850 100 425 115];
+elseif nDevices < 3
+    tabPosition = [850 100 250 115];
+end
 
 
 %% figure 1 cdf ttsps
-
-
-
 figure (1)
+
+
+for i = 1:length(GTT)
+    ttfix(:,i) = [GTT(i).rfonoffstats.TTSPS]    ;
+end
+a = uitable;
+a.RowName = tabRowNames;
+a.ColumnName = tabColNames;
+a.Position = tabPosition;
+a.Data = ttfix;
+a.FontSize = tabFontSize;
+
 hold on
 grid on
  set(gcf,'Position', figPos);
@@ -110,10 +110,10 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-legend(legNames, 'Location', 'southeast')
+legend(legNames, 'Location', 'east')
 xlabel('Time to SPS (s)')
 ylabel('Percent of Cycles');
-tStr{4} = 'Time to SPS Fixed';
+tStr{end} = 'Time to SPS Fixed';
 title(tStr)
 
 pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTSPS');
@@ -121,6 +121,20 @@ print(gcf, '-dpng', pngFull);
 %% figure 2 ttfloat
 
 figure (2)
+
+
+
+for i = 1:length(GTT)
+    ttfix(:,i) = [GTT(i).rfonoffstats.TTFloat]    ;
+end
+
+a = uitable;
+a.RowName = tabRowNames;
+a.ColumnName = tabColNames;
+a.Position = tabPosition;
+a.Data = ttfix;
+a.FontSize = tabFontSize;
+
 hold on
 grid on
 set(gcf,'Position', figPos);
@@ -132,11 +146,11 @@ for i = 1:length(GTT)
         'LineWidth', 2)
 end
 
-legend(legNames, 'Location', 'southeast')
+legend(legNames, 'Location', 'east')
 xlabel('Time to RTK Float (s)')
 ylabel('Percent of Cycles');
 
-tStr{4} = 'Time to RTK Float';
+tStr{end} = 'Time to RTK Float';
 title(tStr)
 
 pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTFloat');
@@ -147,6 +161,18 @@ print(gcf, '-dpng', pngFull);
 
 
 figure (3)
+
+
+for i = 1:length(GTT)
+    ttfix(:,i) = [GTT(i).rfonoffstats.TTFixed]    ;
+end
+
+a = uitable;
+a.RowName = tabRowNames;
+a.ColumnName = tabColNames;
+a.Position = tabPosition;
+a.Data = ttfix;
+a.FontSize = tabFontSize;
 
 hold on
 grid on
@@ -159,11 +185,11 @@ grid on
         'LineWidth', 2)
  end
 
-legend(legNames, 'Location', 'southeast')
+legend(legNames, 'Location', 'east')
 xlabel('Time to RTK Fixed (s)')
 ylabel('Percent of Cycles');
 
-tStr{4} = 'Time to RTK Fixed';
+tStr{end} = 'Time to RTK Fixed';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'TTFixed');
@@ -189,11 +215,11 @@ ax = gca;
 ax.Color = [0.3 0.3 0.3];
 ylim([0 0.5])
 
-legend(legNames, 'Location', 'southeast')
+legend(legNames, 'Location', 'east')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error- RTK Fixed');
 
-tStr{4} = 'Max Horiz Error by Cycle (RTK Fixed)';
+tStr{end} = 'Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFixed');
@@ -215,11 +241,11 @@ ax = gca;
 ax.Color = [0.3 0.3 0.3];
 ylim([0 20])
 
-legend(legNames, 'Location', 'southeast')
+legend(legNames, 'Location', 'east')
 xlabel('Cycle Number')
 ylabel('Max Horiz Error');
 
-tStr{4} = 'Max Horiz Error by Cycle (RTK Float)';
+tStr{end} = 'Max Horiz Error by Cycle (RTK Float)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFloat');
@@ -253,7 +279,7 @@ ylabel('Max Horiz Error');
 
 %xlim([0 20])
 
-tStr{4} = 'CDF Max Horiz Error by Cycle (SPS)';
+tStr{end} = 'CDF Max Horiz Error by Cycle (SPS)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_SPS');
@@ -280,7 +306,7 @@ legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 
-tStr{4} = 'CDF Max Horiz Error by Cycle (RTK Fixed)';
+tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed');
@@ -308,7 +334,7 @@ ylabel('Percent of Epochs');
 ax = gca;
 ax.Color = [0.5 0.5 0.5];
 
-tStr{4} = 'CDF Max Horiz Error by Cycle (RTK Fixed) (xlimit = 0.05m)';
+tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Fixed) (xlimit = 0.05m)';
 title(tStr)
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed_zm')
 print(gcf, '-dpng', pngFull);
@@ -335,7 +361,7 @@ legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 
-tStr{4} = 'CDF Max Horiz Error by Cycle (RTK Float)';
+tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Float)';
 title(tStr)
 
 pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFloat');
@@ -353,7 +379,23 @@ for i = 1:length(GTT)
 end
 xlabel('RF Off Time (s)')
 ylabel('Time to RTK Float (s)')
-tStr{4} = 'Time to RTK Float vs RF Off Time'
+tStr{end} = 'Time to RTK Float vs RF Off Time'
+
+title(tStr)
+legend(legNames)
+
+figure (11)
+
+hold on
+grid on
+set(gcf, 'Position', figPos)
+
+for i = 1:length(GTT)
+    scatter(GTT(i).rfonoff.RFOffTime_s_, GTT(i).rfonoff.TTFixed_s_)
+end
+xlabel('RF Off Time (s)')
+ylabel('Time to RTK Fixed (s)')
+tStr{end} = 'Time to RTK Fixed vs RF Off Time'
 
 title(tStr)
 legend(legNames)

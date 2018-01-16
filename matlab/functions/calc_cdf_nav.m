@@ -5,23 +5,19 @@ disp('Nav CDF Calc Start')
 tic
 
 
-%% get truth position
-
-%truthPos = [37.77345208 , -122.41787236 , -6.3070] % antenna 4
-%truthPos = [37.773484953, -122.417716503, -5.606] % antenna 2
-%truthPos = [37.77347341 , -122.41771647 , -5.7070] % thermal chamber
-refElips = referenceEllipsoid('grs80')
+    %% calc err NED, Horiz and 3D
+    refElips = referenceEllipsoid('grs80')
 
 
-[nav.errN, nav.errE, nav.errD] = geodetic2ned(nav.Lat_deg_,nav.Lon_deg_,nav.AltEllips_m_,...
-    truthPos(1), truthPos(2), truthPos(3), refElips);
-        
-   
-nav.errHoriz = (nav.errN.^2 + nav.errE.^2).^0.5;
-nav.err3D = (nav.errN.^2 + nav.errE.^2 + nav.errD.^2).^0.5;
+    [nav.errN, nav.errE, nav.errD] = geodetic2ned(nav.Lat_deg_,nav.Lon_deg_,nav.AltEllips_m_,...
+        truthPos(1), truthPos(2), truthPos(3), refElips);
+
+
+    nav.errHoriz = (nav.errN.^2 + nav.errE.^2).^0.5;
+    nav.err3D = (nav.errN.^2 + nav.errE.^2 + nav.errD.^2).^0.5;
         
 
-%% calc horiz err CDF for all epochs
+%% calc err CDF for all epochs
 
 vi = nav.FixMode ~=0;
 
@@ -93,8 +89,8 @@ navstats.count.DGNSS = n;
 [~, sig2] = min(abs((1:n)/n-0.95));
 [~, sig3] = min(abs((1:n)/n-0.9975));
 
-navstats.DGNSS_horiz = [cdfDGNSS(sig1); cdfDGNSS(sig2); cdfDGNSS(sig3)];
-navstats.DGNSS_3D = [cdf3DDGNSS(sig1); cdf3DDGNSS(sig2); cdf3DDGNSS(sig3)];
+navstats.DGNSS_errHoriz = [cdfDGNSS(sig1); cdfDGNSS(sig2); cdfDGNSS(sig3); n];
+navstats.DGNSS_err3D = [cdf3DDGNSS(sig1); cdf3DDGNSS(sig2); cdf3DDGNSS(sig3); n];
 
 navstats.plotdata.DGNSS_errHoriz = cdfDGNSS;
 navstats.plotdata.DGNSS_err3D = cdf3DDGNSS;
@@ -112,8 +108,8 @@ navstats.count.SPS = n;
 [~, sig2] = min(abs((1:n)/n-0.95));
 [~, sig3] = min(abs((1:n)/n-0.9975));
 
-navstats.SPS_horiz = [cdfsps(sig1); cdfsps(sig2); cdfsps(sig3); n];
-navstats.SPS_3D = [cdf3dsps(sig1); cdf3dsps(sig2); cdf3dsps(sig3); n];
+navstats.SPS_errHoriz = [cdfsps(sig1); cdfsps(sig2); cdfsps(sig3); n];
+navstats.SPS_err3D = [cdf3dsps(sig1); cdf3dsps(sig2); cdf3dsps(sig3); n];
 
 navstats.plotdata.SPS_errHoriz = cdfsps;
 navstats.plotdata.SPS_err3D = cdf3dsps;
@@ -135,7 +131,7 @@ vi = nav.FixMode <= 2 & nav.FixMode ~=0;
     [~, sig2] = min(abs((1:n)/n-0.95));
     [~, sig3] = min(abs((1:n)/n-0.9975));
 
-    navstats.noRTK_errhoriz = [cdfnortk(sig1); cdfnortk(sig2); cdfnortk(sig3); n];
+    navstats.noRTK_errHoriz = [cdfnortk(sig1); cdfnortk(sig2); cdfnortk(sig3); n];
     navstats.noRTK_err3D = [cdf3dnortk(sig1); cdf3dnortk(sig2); cdf3dnortk(sig3); n];
 
 
@@ -156,7 +152,7 @@ navstats.count.allRTK = n;
 [~, sig2] = min(abs((1:n)/n-0.95));
 [~, sig3] = min(abs((1:n)/n-0.9975));
 
-navstats.allRTK_fixed_errHoriz = [cdfallrtk(sig1); cdfallrtk(sig2); cdfallrtk(sig3); n];
+navstats.allRTK_errHoriz = [cdfallrtk(sig1); cdfallrtk(sig2); cdfallrtk(sig3); n];
 navstats.allRTK_err3D = [cdf3dallrtk(sig1); cdf3dallrtk(sig2); cdf3dallrtk(sig3); n];
 navstats.plotdata.allRTK_errHoriz = cdfallrtk;
 navstats.plotdata.allRTK_err3D = cdf3dallrtk;
@@ -166,7 +162,7 @@ toc
 
 
 
-%%
+
 
 
 
