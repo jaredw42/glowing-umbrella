@@ -7,19 +7,21 @@
 
 close all
 global figPos   
-clearvars -except figPos
+    
 [dut_foldernames, dut_info] = gt_userinput
 
     
+clearvars -except figPos dut_foldernames dut_info
 nDevices = length(dut_foldernames)
 
 outPath = dut_info{1}
 outName = dut_info{2}
 outCorrType = dut_info{3}
+%dStamp = dut_info{4}
 rfOffTime = dut_info{4}
-testType = 'RF'
+testType = 'CR'
 
-%% load in rfonoff and nav csv files into tables
+%% load in onoff and nav csv files into tables
 
 tic
 
@@ -36,7 +38,7 @@ for i = 1: nDevices
     GTT(i).rxdata = getReceiverData(GTT(i).filepath);
     GTT(i).trk = readtable(strcat(GTT(i).filepath, 'trk.csv'));
     GTT(i).nav = readtable(strcat(GTT(i).filepath, 'nav.csv'));
-    GTT(i).rfonoff = readtable(strcat(GTT(i).filepath, 'rf-on-off.csv'));
+    GTT(i).onoff = readtable(strcat(GTT(i).filepath, 'corr-on-off.csv'));
     toc
 end
 
@@ -44,7 +46,7 @@ end
 
 for i = 1:length(GTT)
    [GTT(i).nav, GTT(i).navstats] = calc_cdf_nav(GTT(i).nav, GTT(i).rxdata.truthPos);
-    GTT(i).rfonoffstats = calc_cdf_rfonoff(GTT(i).rfonoff);
+    GTT(i).onoffstats = calc_cdf_rfonoff(GTT(i).onoff);
     GTT(i).fixstats = calc_fixstats(GTT(i).navstats);
 end
 
@@ -55,7 +57,7 @@ ts = strcat(outName,outCorrType, ds)
 ts = strrep(ts, '_', ' ')
 rfoff = strrep(rfOffTime, '_', ' ')
 tStamp = ts;
-tStr = {'GTT RF On/Off Test',  ['RF Off Duration:',rfoff],  ['Dataset: ' tStamp], ' '}
+tStr = {'GTT Corrections On/Off Test',  ['Off Duration:',rfoff],  ['Dataset: ' tStamp], ' '}
 
 
 ds = strcat(ds, '_')
@@ -92,7 +94,7 @@ figure (1)
 
 
 for i = 1:length(GTT)
-    ttfix(:,i) = [GTT(i).rfonoffstats.TTSPS]    ;
+    ttfix(:,i) = [GTT(i).onoffstats.TTSPS]    ;
 end
 a = uitable;
 a.RowName = tabRowNames;
@@ -107,8 +109,8 @@ grid on
 
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoffstats.plotdata.TTSPSs,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.TTSPSs))'/length(GTT(i).rfonoffstats.plotdata.TTSPSs),...
+    plot(GTT(i).onoffstats.plotdata.TTSPSs,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.TTSPSs))'/length(GTT(i).onoffstats.plotdata.TTSPSs),...
         'LineWidth', 2)
 end
 
@@ -124,7 +126,7 @@ print(gcf, '-dpng', pngFull);
 figure (2)
 
 for i = 1:length(GTT)
-    ttfix(:,i) = [GTT(i).rfonoffstats.TTFloat]    ;
+    ttfix(:,i) = [GTT(i).onoffstats.TTFloat]    ;
 end
 
 a = uitable;
@@ -139,8 +141,8 @@ grid on
 set(gcf,'Position', figPos);
 
 for i = 1:length(GTT)
-        plot(GTT(i).rfonoffstats.plotdata.TTFloats,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.TTFloats))'/length(GTT(i).rfonoffstats.plotdata.TTFloats),...
+        plot(GTT(i).onoffstats.plotdata.TTFloats,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.TTFloats))'/length(GTT(i).onoffstats.plotdata.TTFloats),...
         'LineWidth', 2)
 end
 
@@ -158,7 +160,7 @@ print(gcf, '-dpng', pngFull);
 figure (3)
 
 for i = 1:length(GTT)
-    ttfix(:,i) = [GTT(i).rfonoffstats.TTFixed]    ;
+    ttfix(:,i) = [GTT(i).onoffstats.TTFixed]    ;
 end
 
 a = uitable;
@@ -173,8 +175,8 @@ grid on
  set(gcf,'Position', figPos);
  
  for i = 1:length(GTT)
-        plot(GTT(i).rfonoffstats.plotdata.TTFixeds,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.TTFixeds))'/length(GTT(i).rfonoffstats.plotdata.TTFixeds),...
+        plot(GTT(i).onoffstats.plotdata.TTFixeds,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.TTFixeds))'/length(GTT(i).onoffstats.plotdata.TTFixeds),...
         'LineWidth', 2)
  end
 
@@ -198,7 +200,7 @@ set(gcf, 'Position', figPos)
 set(gcf, 'InvertHardcopy', 'off')
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoff.Fixed2DError_m_)
+    plot(GTT(i).onoff.Fixed2DError_m_)
 end
 
 ax = gca;
@@ -224,7 +226,7 @@ set(gcf, 'Position', figPos)
 set(gcf, 'InvertHardcopy', 'off')
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoff.Float2DError_m_)
+    plot(GTT(i).onoff.Float2DError_m_)
 end
 
 ax = gca;
@@ -249,11 +251,11 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-%     plot(GTT(i).rfonoffstats.plotdata.Max2DSPSErr,...
-%         100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DSPSErr),...
+%     plot(GTT(i).onoffstats.plotdata.Max2DSPSErr,...
+%         100 * (1:length(GTT(i).onoffstats.plotdata.Max2DSPSErr))'/length(GTT(i).onoffstats.plotdata.Max2DSPSErr),...
 %         'LineWidth', 2)
     
-    plot(GTT(i).rfonoff.SPS2DError_m_)
+    plot(GTT(i).onoff.SPS2DError_m_)
 end
 
 legend(legNames, 'Location', 'east')
@@ -276,8 +278,8 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoffstats.plotdata.Max2DFixedErr,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DFixedErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DFixedErr),...
+    plot(GTT(i).onoffstats.plotdata.Max2DFixedErr,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.Max2DFixedErr))'/length(GTT(i).onoffstats.plotdata.Max2DFixedErr),...
         'LineWidth', 2)
 end
 
@@ -301,8 +303,8 @@ set(gcf, 'Position', figPos)
 set(gcf, 'InvertHardcopy', 'off')
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoffstats.plotdata.Max2DFixedErr,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DFixedErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DFixedErr),...
+    plot(GTT(i).onoffstats.plotdata.Max2DFixedErr,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.Max2DFixedErr))'/length(GTT(i).onoffstats.plotdata.Max2DFixedErr),...
         'LineWidth', 2)
 end
 
@@ -328,14 +330,14 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-    plot(GTT(i).rfonoffstats.plotdata.Max2DFloatErr,...
-        100 * (1:length(GTT(i).rfonoffstats.plotdata.Max2DFloatErr))'/length(GTT(i).rfonoffstats.plotdata.Max2DFloatErr),...
+    plot(GTT(i).onoffstats.plotdata.Max2DFloatErr,...
+        100 * (1:length(GTT(i).onoffstats.plotdata.Max2DFloatErr))'/length(GTT(i).onoffstats.plotdata.Max2DFloatErr),...
         'LineWidth', 2)
 end
 
 
 xlim([0 10])
-legend(legNames, 'Location', 'east')
+legend(legNames, 'Location', 'southeast')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 
@@ -353,7 +355,7 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-    scatter(GTT(i).rfonoff.RFOffTime_s_, GTT(i).rfonoff.TTFloat_s_)
+    scatter(GTT(i).onoff.RFOffTime_s_, GTT(i).onoff.TTFloat_s_)
 end
 xlabel('RF Off Time (s)')
 ylabel('Time to RTK Float (s)')
@@ -373,14 +375,14 @@ grid on
 set(gcf, 'Position', figPos)
 
 for i = 1:length(GTT)
-    scatter(GTT(i).rfonoff.RFOffTime_s_, GTT(i).rfonoff.TTFixed_s_)
+    scatter(GTT(i).onoff.RFOffTime_s_, GTT(i).onoff.TTFixed_s_)
     
 end
 xlabel('RF Off Time (s)')
 ylabel('Time to RTK Fixed (s)')
 tStr{end} = 'Time to RTK Fixed vs RF Off Time';
 
-%ylim([5 30])
+ylim([5 30])
 title(tStr)
 legend(legNames)
 

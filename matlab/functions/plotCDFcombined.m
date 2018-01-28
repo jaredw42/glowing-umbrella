@@ -2,7 +2,7 @@
 disp('Plotting CDF (all devices')
 tic
 
-
+close all
 
 for i = 1:length(GTT)
     
@@ -25,10 +25,6 @@ if nDevices == 4
 elseif nDevices < 3
     tabPosition = [850 100 250 115];
 end
-
-%%
-
-%tStr = {'GTT Continous Navigation ',  ['Dataset: ' tStamp],  ' '};
 
 
 %% figure 11 & 12
@@ -67,7 +63,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'CDF 3D Error (All Epochs)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_3d_allP0');
+pngFull = strcat(fp, 'cdf_3d_allP0');
 print(gcf, '-dpng', pngFull);
 
 
@@ -107,7 +103,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'CDF 3D Error (All Epochs)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_3d_allP90');
+pngFull = strcat(fp, 'cdf_3d_allP90');
 print(gcf, '-dpng', pngFull);
 
 
@@ -152,7 +148,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'P0-P90 CDF Horizontal Error (All Epochs)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_allP0');
+pngFull = strcat(fp, 'cdf_horiz_allP0');
 print(gcf, '-dpng', pngFull);
 
 
@@ -192,7 +188,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'P90-100 CDF Horizontal Error (All Epochs)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_allP90');
+pngFull = strcat(fp, 'cdf_horiz_allP90');
 print(gcf, '-dpng', pngFull);
 %% figure 15 & 16 cdf horiz rtk fixed
 
@@ -235,7 +231,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'P0-90 CDF Horizontal Error (RTK Fixed)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_rtkfixedp0');
+pngFull = strcat(fp, 'cdf_horiz_rtkfixedp0');
 print(gcf, '-dpng', pngFull);
 
 
@@ -265,19 +261,19 @@ for i = 1:length(GTT)
 end
 
 ax = gca;
-ax.Color = axDark;
-ylim([90 100])
+%ax.Color = axDark;
+%ylim([90 100])
 
 legend(legNames, 'Location', 'east')
 xlabel('Horizontal Error (m)')
 ylabel('Percent of Epochs');
 
-tStr{end} = 'P90-100 CDF Horizontal Error (RTK Fixed)';
+tStr{end} = 'P0-100 CDF Horizontal Error (RTK Fixed)';
 title(tStr)
 
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_rtkfixedp90');
-print(gcf, '-dpng', pngFull);
+pngFull = strcat(fp, 'cdf_horiz_rtkfixedp90');
+%print(gcf, '-dpng', pngFull);
 %% figure 17 & 18 cdf horiz rtk float
 
 
@@ -323,7 +319,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'P0-90 CDF Horizontal Error (RTK Float)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_rtkfloatP0');
+pngFull = strcat(fp, 'cdf_horiz_rtkfloatP0');
 print(gcf, '-dpng', pngFull);
 
 
@@ -365,7 +361,7 @@ tStr{end} = 'P90-100CDF Horizontal Error (RTK Float)';
 title(tStr)
 
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_rtkfloatP90');
+pngFull = strcat(fp, 'cdf_horiz_rtkfloatP90');
 print(gcf, '-dpng', pngFull);
 
 end
@@ -415,7 +411,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'P0-P90 CDF Horizontal Error (SPS/Standalone)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_spsP0');
+pngFull = strcat(fp, 'cdf_horiz_spsP0');
 print(gcf, '-dpng', pngFull);
 
 
@@ -458,7 +454,7 @@ tStr{end} = 'P90-100CDF Horizontal Error (SPS/Standalone)';
 title(tStr)
 
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'cdf_horiz_spsP90');
+pngFull = strcat(fp, 'cdf_horiz_spsP90');
 print(gcf, '-dpng', pngFull);
 
 end

@@ -4,7 +4,8 @@ function [rfonoffstats] = calc_cdf_rfonoff(rfonoff, testType)
 disp('RF On/Off CDF Calc Start')
 tic
       
-
+try rfonoff.TTSPS_s_
+    
     ttfixcdf = sort(rfonoff.TTSPS_s_);
     max2derrcdf = sort(rfonoff.SPS2DError_m_);
     max3derrcdf = sort(rfonoff.SPS3DError_m_);
@@ -20,7 +21,10 @@ tic
     rfonoffstats.TTSPS = [ttfixcdf(sig1); ttfixcdf(sig2); ttfixcdf(sig3)];
     rfonoffstats.Max2DSPSStats = [max2derrcdf(sig1); max2derrcdf(sig2); max2derrcdf(sig3)];
     rfonoffstats.Max3DSPSStats = [max3derrcdf(sig1); max3derrcdf(sig2); max3derrcdf(sig3)];
-    
+catch
+    disp('No SPS data')
+end
+
     try testType == 'ST'
         ttboot = sort(rfonoff.TTBoot_s_);
         rfonoffstats.plotdata.TTBoot = ttboot;

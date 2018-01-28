@@ -1,9 +1,13 @@
 function [rxdata] = getReceiverData(dut_foldername)
 
+% opens report.txt file and gets information about GTT stand and rx
+% configuation
+
 % regular expression tokens
 exFW = 'Firmware Version';
 exAnt = 'Antenna';
 exLJID = 'LabJack';
+exDUT = 'DUT';
 
     fn = dut_foldername
     
@@ -12,7 +16,6 @@ exLJID = 'LabJack';
     end
     
     rptID = fopen(strcat(fn, 'report.txt'))
-    
     a = textscan(rptID, '%s', 100000, 'delimiter', '\n');
     a = a{:};
     
@@ -41,5 +44,11 @@ exLJID = 'LabJack';
         
     end
    
-
+    %% get dut ID and datestamp 
+    
+    di = regexp(fn, exDUT);
+    rxdata.dutID = fn(di:(di+4)) 
+    dsi = di + 6;
+    rxdata.dateStamp = fn(dsi:dsi+7)
+    
  fclose('all');

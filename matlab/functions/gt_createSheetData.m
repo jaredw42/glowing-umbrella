@@ -1,10 +1,8 @@
 %% gt_createSheetData
-try testType
-    
+ %% time to fix stats  
 if testType == 'RF'
     
     for i = 1:nDevices
-        %% time to fix stats
         rfonoffstats = GTT(i).rfonoffstats
         
         sData(1:3,i) =  rfonoffstats.TTSPS;
@@ -14,6 +12,7 @@ if testType == 'RF'
         sData(11:13,i) = rfonoffstats.TTFixed;
                
     end   
+    
 elseif testType == 'ST'
     for i = 1:nDevices
         ststats = GTT(i).startstats
@@ -23,10 +22,6 @@ elseif testType == 'ST'
         sData(16:18,i) = ststats.TTFixed;
     end
     
-end
-
-catch
-    disp('No test type detected')
 end
 
 %% nav stats 
@@ -54,5 +49,29 @@ end
     end
     
     
+%% false fix stats
+
+for i = 1:nDevices
+    fs = GTT(i).fixstats
     
-        
+    gtpctfix(1,i) = fs.pctrfixed;
+    gtpctfix(2,i) = fs.pctrfloat;
+    gtpctfix(3,i) = fs.pctdgps;
+    gtpctfix(4,i) = fs.pctsps;
+    gtpctfix(5,i) = fs.pctfix;
+    gtpctfix(6,i) = fs.missfix;
+    try
+    fixdata(1:5,i) = fs.falseCounts;
+    fixdata(7:9,i) = fs.goodPct;
+    fixdata(11:13,i) = fs.badPct;
+    catch
+        disp('no false RTK fixes')
+    end
+    
+end
+
+try
+    sheetOut = [sData; fixdata; gtpctfix; navdata];
+catch
+    sheetOut = [fixdata; gtpctfix; navdata];
+end

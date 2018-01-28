@@ -8,16 +8,19 @@
 ### todo
 
 #### all GTT
+- [ ] make text file that logs all file paths run 
+- [ ] cdf_calc_nav - investigate nans in all_epochs 3-sig calc on gtt starts 
 - [x] add logic for different antenna positions
-- [ ] date stamp from receiver data
+- [x] date stamp from receiver data
 - [x] legend data from rx data
 - [ ] define convention for naming files and folders
-- [ ] make gt_plotindRx work with all test types
+- [x] make gt_plotindRx work with all test types
 - [ ] plotting/tracking of RTK false fixes
 - [ ] dynamic uitable sizing
-- [ ] fix plots folder naming issue
+- [x] fix plots folder naming issue
 - [ ] handle gps week rollover
 - [ ] gt_createSheetData
+    - [ ] add false fix stats 
 - [ ] add testType variable for plot setting
 - [ ] combined RTK Fixed + Float nav plots (for RF On OFF)
 - [x] cleanup calc_nav navstats.DGNSS and SPS error names

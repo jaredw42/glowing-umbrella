@@ -4,6 +4,8 @@ function [dut_foldernames, dut_info] = gt_userinput()
 
 %% user input folder info and load nav and rf on/off data
 
+
+
 %% plot details
 set(0,'defaultAxesGridAlpha', 0.5)
 set(0,'defaultAxesFontSize', 16)
@@ -26,11 +28,26 @@ end
 %%
 
 prompt = {'Output Folder Directory', 'File name prefix', 'Correction Type',...
-           'Outage Cycle Duration' 'Date stamp'}
+           'Outage Cycle Duration'}
 
 dlg_title = 'Input plot info'
 
 defaultans = {'/Users/jwilson/SwiftNav/dev/plots/',...
-               'GT3CN_', 'RTCM3S_' '15-35 s', '180112'};
+               'GT3CN_', 'RTCM3S_', '15-35 s'};
  
 dut_info = inputdlg(prompt, dlg_title, [1, 100], defaultans)
+
+%% save file paths to text file
+
+gtruns = fopen('/Users/jwilson/SwiftNav/glowing-umbrella/matlab/ref/gtt_runs.txt', 'a')
+
+for i = 1: length(dut_foldernames)
+    fprintf(gtruns, '%s \n', dut_foldernames{i})
+end
+fclose(gtruns)
+
+
+
+
+
+

@@ -8,7 +8,7 @@ if testType == 'CN'
     plothorizlimits = [0 2];
     plot3Dlimits = [0 3];
     plotNEDlimits = [-0.2 0.2];
-    gtTitle = 'GTT Continuous Navigation'
+    gtTitle = 'GTT Continuous Navigation';
     
 elseif testType == 'ST'
     plothorizlimits = [0 10];
@@ -23,6 +23,11 @@ elseif testType == 'RF'
     plotNEDlimits = [-3 3];
     gtTitle = 'GTT RF On/Off';
     
+elseif testType == 'CR'
+    plothorizlimits = [0 10];
+    plot3Dlimits = [0 20];
+    plotNEDlimits = [-3 3];
+    gtTitle = 'GTT Corrections Off';
 end
 
 
@@ -39,7 +44,7 @@ for i = 1:nDevices
     vi1 = nav.FixMode == 1;
     
     
-    tStr = {gtTitle  ['Dataset: ' tStamp], ['Station: ' GTT(i).rxdata.gtname], ' ' }
+    tStr = {gtTitle  ['Dataset: ' tStamp], ['Station: ' GTT(i).rxdata.gtname], ' ' };
 
     %% figure 1x  overhead by diff mode
     figure(i+10)
@@ -49,7 +54,7 @@ for i = 1:nDevices
 
 
        plot(nav.errE(vi1), nav.errN(vi1), 'r');
-       plot(nav.errE(vi2), nav.errN(vi2), 'p');
+       plot(nav.errE(vi2), nav.errN(vi2), 'm');
        plot(nav.errE(vi3), nav.errN(vi3), 'b');
        plot(nav.errE(vi4), nav.errN(vi4), 'g');
     
@@ -64,7 +69,7 @@ for i = 1:nDevices
            xlim(plotNEDlimits)
        end
        
-      pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'errN_vs_E_diffmode')
+      pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'errN_vs_E_diffmode');
       print(gcf, '-dpng', pngFull); 
 %% fig 2x horiz error by diff mode
 
@@ -89,7 +94,7 @@ for i = 1:nDevices
     legend('RTK Fixed', 'RTK Float', 'DGNSS', 'SPS')
     
     
-    pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'errHoriz_diffmode')
+    pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'errHoriz_diffmode');
     print(gcf, '-dpng', pngFull);   
     
     
@@ -113,7 +118,7 @@ for i = 1:nDevices
     end
     legend('RTK Fixed', 'RTK Float', 'DGNSS', 'SPS')
     
-    pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'err3d_diffmode')
+    pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'err3d_diffmode');
     print(gcf, '-dpng', pngFull);
     
     %% fig 4x errNED
@@ -124,7 +129,6 @@ for i = 1:nDevices
     
     plot(nav.TOW_s_, nav.errN, nav.TOW_s_, nav.errE, nav.TOW_s_, nav.errD)
     
-    
     tStr{end} = 'Error North/East/Down vs Time';
     title(tStr)
     xlabel('GPS TOW (s)')
@@ -132,13 +136,12 @@ for i = 1:nDevices
     ylim(plotNEDlimits)
     legend('errN', 'errE', 'errD')
     
-    pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'errNED')
+    pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'errNED');
     print(gcf, '-dpng', pngFull);
 
     %% figure 5x real and predicted horiz
     figure(i+50)
     
- 
     set(gcf, 'Position', figPos)
     hold on
     grid on
@@ -153,7 +156,7 @@ for i = 1:nDevices
      
     legend('Real Horiz Error', 'HRMS Predicted Error')
     
-    pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'errHoriz_HRMS')
+    pngFull = strcat(outPath, ds,  GTT(i).rxdata.gtname,'_', outCorrType, 'errHoriz_HRMS');
     print(gcf, '-dpng', pngFull);
     
     
@@ -174,10 +177,28 @@ for i = 1:nDevices
     ylim(plot3Dlimits)
     legend('Real 3D Error', '3D RMS Predicted Error')
     
-    pngFull = strcat(outPath, GTT(i).rxdata.gtname,'_', outCorrType, dStamp, 'err3D_VRMS')
+    pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'err3D_VRMS');
     print(gcf, '-dpng', pngFull);
-end
-   
+%%
+      figure(i+70)
+    
+    set(gcf, 'Position', figPos)
+    hold on
+    grid on
+    
+    plot(nav.TOW_s_(vi4), nav.err3D(vi4), 'g.');
+       
+    tStr{end} = 'RTK Fixed 3D Error vs Time';
+    title(tStr)
+    xlabel('GPS TOW (s)')
+    ylabel('3D Error (m)')
+    %ylim([0 0.5])
+    legend('RTK Fixed 3D Err')
+    
+    pngFull = strcat(outPath, ds, GTT(i).rxdata.gtname,'_', outCorrType, 'err3D_RTKFixed');
+    print(gcf, '-dpng', pngFull);
+  
+  end
 toc
 
 %%
@@ -209,7 +230,7 @@ toc
 % 
 % tStr{end} = 'North/East/Down Error vs GPS Time';
 % title(tStr)
-% pngFull = strcat(outPath, outName, outCorrType, dStamp, 'NED_vs_time')
+% pngFull = strcat(fp, 'NED_vs_time')
 % %print(gcf, '-dpng', pngFull);
 
 

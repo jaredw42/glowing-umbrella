@@ -7,6 +7,7 @@
 
 close all
 global figPos   
+clearvars -except figPos %dut_foldernames dut_info
 
 [dut_foldernames, dut_info] = gt_userinput();
 
@@ -15,16 +16,8 @@ nDevices = length(dut_foldernames)
 outPath = dut_info{1};
 outName = dut_info{2};
 outCorrType = dut_info{3};
-dStamp = dut_info{4};
-rxOffTime = dut_info{5};
+
 testType = 'CN'
-%% 
-
-ts = strcat(outName,outCorrType, dStamp)
-ts = strrep(ts, '_', ' ')
-
-tStamp = ts;
-tStr = {'GTT Continous Navigation ',  ['Dataset: ' tStamp], ' ' }
 
 %% load in rfonoff and nav csv files into tables
 
@@ -54,9 +47,22 @@ for i = 1:length(GTT)
 
 end
 
-
-
 %% title and legend info
+
+ds = GTT(1).rxdata.dateStamp(3:end);
+ds = strcat(ds, '_')
+
+ts = strcat(outName,outCorrType, ds)
+ts = strrep(ts, '_', ' ')
+
+
+fp = strcat(outPath, ds, outName, outCorrType)
+
+tStamp = ts;
+tStr = {'GTT Continous Navigation ',  ['Dataset: ' tStamp], ' ' }
+
+
+
 
 
 for i = 1:nDevices
@@ -66,7 +72,7 @@ end
 
 axDark = [ 0.4 0.4 0.4] %tuple for dark axis background alpha
 tabColNames = colname
-tabPosition = [850 100 450 115]
+tabPosition = [850 100 500 150]
 tabRowNames = {'One Sig', 'Two Sig', 'Three Sig', 'Count'}
 tabFontSize = 14;
     
@@ -89,24 +95,15 @@ end
 legend(legNames)
 xlabel('GPS TOW (s)')
 ylabel('SVs Used');
-tStr{end+1} = 'Satellites Used';
+tStr{end} = 'Satellites Used';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'Sats_used');
+pngFull = strcat(fp, 'Sats_used');
 print(gcf, '-dpng', pngFull);
 %% figure 2 diff mode
 
 figure (2)
 
-for i = 1:nDevices
-    fs = GTT(i).fixstats;
-    gtpctfix(1,i) = fs.pctrfixed;
-    gtpctfix(2,i) = fs.pctrfloat;
-    gtpctfix(3,i) = fs.pctdgps;
-    gtpctfix(4,i) = fs.pctsps;
-   % gtpctfix(5,i) = fs.pctfix;
-   % gtpctfix(6,i) = fs.missfix;
-end
 
 
 a = uitable;
@@ -130,11 +127,11 @@ end
 legend(legNames)
 xlabel('GPS TOW (s)')
 ylabel('Differential Mode');
-xlim([525000 604800])
+%xlim([525000 604800])
 tStr{end} = 'Differential Mode';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'dMode')
+pngFull = strcat(fp, 'dMode');
 print(gcf, '-dpng', pngFull);
 
 %% figure 3 overhead n vs e 
@@ -159,7 +156,7 @@ ylabel('N/S Error (m)');
 tStr{end} = 'Overhead Plot';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'n_vs_e')
+pngFull = strcat(fp, 'n_vs_e');
 print(gcf, '-dpng', pngFull);
 
 
@@ -182,7 +179,7 @@ end
 ax = gca;
 %ax.Color = [0.3 0.3 0.3];
 axis tight
-ylim([0 0.1])
+%ylim([0 0.1])
 
 legend(legNames)
 xlabel('GPS TOW (s)')
@@ -191,7 +188,7 @@ ylabel('Horizontal Error (m)');
 tStr{end} = 'Horizontal Error vs Time';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'errHoriz_all')
+pngFull = strcat(fp, 'errHoriz_all');
 print(gcf, '-dpng', pngFull);
 
 %% figure 5 3d error vs time
@@ -220,7 +217,7 @@ ylabel('3D Error (m)');
 tStr{end} = '3D Error (All Epochs)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'err3d_all');
+pngFull = strcat(fp, 'err3d_all');
 print(gcf, '-dpng', pngFull);
 
 

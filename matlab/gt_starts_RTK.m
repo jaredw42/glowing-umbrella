@@ -7,7 +7,7 @@
 
 close all
 global figPos   
-
+clearvars -except figPos %dut_foldernames dut_info
 
 [dut_foldernames, dut_info] = gt_userinput
 
@@ -16,8 +16,7 @@ nDevices = length(dut_foldernames)
 outPath = dut_info{1};
 outName = dut_info{2};
 outCorrType = dut_info{3};
-dStamp = dut_info{4};
-rxOffTime = dut_info{5};
+rxOffTime = dut_info{end};
 testType = 'ST'
 
     %% load in rfonoff and nav csv files into tables
@@ -65,8 +64,11 @@ for i = 1:nDevices
     legNames{i} = strcat(GTT(i).rxdata.gtname, GTT(i).rxdata.FWRev);
     colname{i} = GTT(i).rxdata.gtname;
 end
+ds = GTT(1).rxdata.dateStamp(3:end);
+ds = strcat(ds, '_')
+fp = strcat(outPath, ds, outName, outCorrType)
 
-ts = strcat(outName,outCorrType, dStamp)
+ts = strcat(outName,outCorrType, ds)
 ts = strrep(ts, '_', ' ')
 rxoff = strrep(rxOffTime, '_', ' ')
 tStamp = ts;
@@ -109,7 +111,7 @@ ylabel('Percent of Cycles');
 tStr{end} = 'Time to SPS Fixed';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTSPS');
+pngFull = strcat(fp,'TTSPS');
 print(gcf, '-dpng', pngFull);
 %% figure 2 ttfloat
 
@@ -144,7 +146,7 @@ ylabel('Percent of Cycles');
 tStr{end} = 'Time to RTK Float';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTFloat');
+pngFull = strcat(fp, 'TTFloat');
 print(gcf, '-dpng', pngFull);
 
 %% figure 3 cdf ttfixed
@@ -182,7 +184,7 @@ ylabel('Percent of Cycles');
 tStr{end} = 'Time to RTK Fixed';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'TTFixed');
+pngFull = strcat(fp, 'TTFixed');
 print(gcf, '-dpng', pngFull);
 
 
@@ -212,7 +214,7 @@ ylabel('Max Horiz Error- RTK Fixed');
 tStr{end} = 'Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFixed');
+pngFull = strcat(fp, 'Max_RTKFixed');
 print(gcf, '-dpng', pngFull);
 
 %% figure 5 max rtkfloat by cycle
@@ -238,7 +240,7 @@ ylabel('Max Horiz Error');
 tStr{end} = 'Max Horiz Error by Cycle (RTK Float)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'Max_RTKFloat');
+pngFull = strcat(fp, 'Max_RTKFloat');
 print(gcf, '-dpng', pngFull);
 
 
@@ -268,7 +270,7 @@ xlim([0 20])
 tStr{end} = 'CDF Max Horiz Error by Cycle (SPS)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_SPS');
+pngFull = strcat(fp, 'CDF_Max_SPS');
 print(gcf, '-dpng', pngFull);
 
 %% figure 7 cdf max rtk Fixed 
@@ -295,7 +297,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Fixed)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed')
+pngFull = strcat(fp, 'CDF_Max_RTKFixed')
 print(gcf, '-dpng', pngFull);
 
 %% figure 8 cdf max rtk fixed zoomed
@@ -322,7 +324,7 @@ ax.Color = [0.5 0.5 0.5];
 
 tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Fixed) (xlimit = 0.05m)';
 title(tStr)
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFixed_zm');
+pngFull = strcat(fp, 'CDF_Max_RTKFixed_zm');
 print(gcf, '-dpng', pngFull);
 
 
@@ -350,7 +352,7 @@ ylabel('Percent of Epochs');
 tStr{end} = 'CDF Max Horiz Error by Cycle (RTK Float)';
 title(tStr)
 
-pngFull = strcat(outPath, outName, outCorrType, dStamp, 'CDF_Max_RTKFloat');
+pngFull = strcat(fp, 'CDF_Max_RTKFloat');
 print(gcf, '-dpng', pngFull);
 %%
 
@@ -384,6 +386,6 @@ ylabel('Percent of Cycles');
 tStr{end} = 'Time to Boot (s)';
 title(tStr)
 
-pngFull = strcat(outPath,outName, outCorrType, dStamp, 'TTBoot');
+pngFull = strcat(fp, 'TTBoot');
 print(gcf, '-dpng', pngFull);
 toc
